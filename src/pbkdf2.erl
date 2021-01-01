@@ -12,6 +12,13 @@
 
 -module(pbkdf2).
 
+-define(OLD_CRYPTO_API, true).
+-ifdef(OTP_RELEASE).
+	-if(?OTP_RELEASE >= 23).
+		-undef(OLD_CRYPTO_API).
+	-endif.
+ -endif.
+
 -export([pbkdf2/4, pbkdf2/5, compare_secure/2, to_hex/1]).
 
 
@@ -136,10 +143,7 @@ pbkdf2(MacFunc, Password, Salt, Iterations, BlockIndex, Iteration, Prev, Acc) ->
 
 resolve_mac_func({hmac, DigestFunc}) ->
 	fun(Key, Data) ->
-		%crypto:hmac(DigestFunc, Key, Data)
-		HMAC = crypto:hmac_init(DigestFunc, Key),
-		HMAC1 = crypto:hmac_update(HMAC, Data),
-		crypto:hmac_final(HMAC1)
+		generate_hmac(DigestFunc, Key, Data)
 	end;
 
 resolve_mac_func(MacFunc) when is_function(MacFunc) ->
@@ -153,6 +157,16 @@ resolve_mac_func(sha224) -> resolve_mac_func({hmac, sha224});
 resolve_mac_func(sha256) -> resolve_mac_func({hmac, sha256});
 resolve_mac_func(sha384) -> resolve_mac_func({hmac, sha384});
 resolve_mac_func(sha512) -> resolve_mac_func({hmac, sha512}).
+
+-ifdef(OLD_CRYPTO_API).
+generate_hmac(DigestFunc, Key, Data) ->
+	HMAC = crypto:hmac_init(DigestFunc, Key),
+	HMAC1 = crypto:hmac_update(HMAC, Data),
+	crypto:hmac_final(HMAC1).
+-else.
+generate_hmac(DigestFunc, Key, Data) ->
+	crypto:mac(hmac, DigestFunc, Key, Data).
+-endif.
 
 %----------------------------------------------------------------------------------------------------------------------
 
