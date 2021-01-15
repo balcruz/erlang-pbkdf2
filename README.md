@@ -30,13 +30,14 @@ Usage
 -----
 
 ```erlang
+MacFunc = sha.
 OriginalPassword = <<"password">>.
 
 % Settings
 {Salt, Iterations, DerivedLength} = {<<"salt">>, 4096, 20}.
 
 % Hash the original password.
-{ok, Key} = pbkdf2:pbkdf2(OriginalPassword, Salt, Iterations, DerivedLength).
+{ok, Key} = pbkdf2:pbkdf2(MacFunc, OriginalPassword, Salt, Iterations, DerivedLength).
 
 % At this point, Key = <<"4b007901b765489abead49d926f721d065a429c1">>.
 
@@ -44,7 +45,7 @@ OriginalPassword = <<"password">>.
 EnteredPassword = getpass().
 
 % Ensure that the entered password is the same as the original.
-{ok, Key} = pbkdf2:pbkdf2(EnteredPassword, Salt, Iterations, DerivedLength).
+{ok, Key} = pbkdf2:pbkdf2(MacFunc, EnteredPassword, Salt, Iterations, DerivedLength).
 ```
 
 If you're curious what `getpass/0` would look like, here's a sample implementation:
