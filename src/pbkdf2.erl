@@ -160,7 +160,7 @@ resolve_mac_func(sha512) -> resolve_mac_func({hmac, sha512}).
 
 -ifdef(OLD_CRYPTO_API).
 generate_hmac(DigestFunc, Key, Data) ->
-	HMAC = crypto:hmac_init(DigestFunc, Key),
+	HMAC = crypto:hmac_init(hmac, DigestFunc, Key),
 	HMAC1 = crypto:hmac_update(HMAC, Data),
 	crypto:hmac_final(HMAC1).
 -else.
